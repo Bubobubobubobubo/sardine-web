@@ -22,8 +22,9 @@ import {
     foldKeymap
 } from "@codemirror/language"
 import {
+    history,
     defaultKeymap, 
-    historyKeymap
+    historyKeymap,
 } from "@codemirror/commands"
 import {
     searchKeymap, 
@@ -85,8 +86,7 @@ export const editorSetup: Extension = (() => [
     python(),
     highlightActiveLineGutter(),
     highlightSpecialChars(),
-    // history(),
-    // foldGutter(),
+    history(),
     drawSelection(),
     dropCursor(),
     EditorState.allowMultipleSelections.of(true),
