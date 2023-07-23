@@ -17,6 +17,7 @@ import {
 import * as Y from 'yjs'
 // @ts-ignore
 import { yCollab } from 'y-codemirror.next'
+// @ts-ignore
 import { WebrtcProvider } from 'y-webrtc';
 
 
@@ -92,7 +93,12 @@ class Editor {
       Math.floor(Math.random() * this.userColors.length)
     ];
     const ydoc = new Y.Doc();
-    const provider = new WebrtcProvider('codemirror6-demo-room', ydoc);
+    const provider = new WebrtcProvider('codemirror6-demo-room', ydoc,
+    {
+      signaling: [
+        'wss://localhost:8000',
+      ]
+    });
     const ytext = ydoc.getText('codemirror');
     const undoManager = new Y.UndoManager(ytext)
     provider.awareness.setLocalStateField('user', {
