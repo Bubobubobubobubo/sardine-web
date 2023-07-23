@@ -43,6 +43,7 @@ dependencies = [
     "pygtail>=0.14.0",
     "rich>=12.5",
     "sardine-system>=0.4.0",
+    "Flask-SocketIO>=5.3.4",
 ]
 
 [project.entry-points."sardine.cli_main_hooks"]

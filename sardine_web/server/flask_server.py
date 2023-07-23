@@ -8,6 +8,7 @@ from pathlib import Path
 from threading import Thread
 from typing import Optional
 import json
+from flask_socketio import SocketIO, join_room, leave_room, emit
 
 from appdirs import *
 from flask import (
@@ -128,6 +129,41 @@ def server_factory(console):
     app = Flask(__name__, static_folder="../client/dist")
     app.logger.disabled = True  # Disable some of the logging
     CORS(app, resources={r"/*": {"origins": "*"}})
+
+
+    @socketio.on('connect')
+    def on_connect():
+        print('Client connected:', request.sid)
+
+    @socketio.on('join_room')
+    def on_join_room(data):
+        room_id = data['room_id']
+        user_id = request.sid
+        join_room(room_id)
+        if room_id not in rooms:
+            rooms[room_id] = {'users': [user_id]}
+        else:
+            rooms[room_id]['users'].append(user_id)
+        emit('user_joined', {'user_id': user_id}, room=room_id)
+        print('User', user_id, 'joined room', room_id)
+
+    @socketio.on('leave_room')
+    def on_leave_room(data):
+        room_id = data['room_id']
+        user_id = request.sid
+        leave_room(room_id)
+        if room_id in rooms and user_id in rooms[room_id]['users']:
+            rooms[room_id]['users'].remove(user_id)
+            emit('user_left', {'user_id': user_id}, room=room_id)
+            print('User', user_id, 'left room', room_id)
+
+
+    @socketio.on('text_change')
+    def on_text_change(data):
+        room_id = data['room_id']
+        user_id = request.sid
+        # Broadcast the text change data to other users in the same room.
+        emit('text_changed', data, room=room_id, include_self=False)
 
     @app.route("/save", methods=["POST"])
     def save_files_to_disk() -> str:
